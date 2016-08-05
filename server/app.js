@@ -22,7 +22,7 @@ app.use(function(req, res, next) {
     next();
 });
 
-let stocks = [];
+let stocks = ['googl'];
 io.on('connection', function (socket) {
   socket.emit('new stocks', stocks);
   
