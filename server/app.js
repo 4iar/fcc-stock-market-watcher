@@ -3,6 +3,7 @@ const express = require('express');
 const mongodb = require('mongodb');
 const _ = require('lodash');
 const yahooFinance = require('yahoo-finance');
+const moment = require('moment');
 
 
 // setup db
@@ -38,13 +39,18 @@ app.get('/api/stocks', (request, response) => {
   console.log(stocks)
   yahooFinance.historical({
     symbols: stocks,
-    from: '2012-01-01',
-    to: '2012-12-31',
-  }, (error, data) => {
+    to: moment(new Date()).format('YYYY-MM-DD'),
+    from: '2000-01-01',
+  }, (error, dataRaw) => {
     if (error) {
-      console.log(error);
       response.json({status: 'error', message: 'problem contacting the yahoo finance api'});
-    } else if (data) {
+    } else if (dataRaw) {
+      const data =_.keys(dataRaw).map((symbol) => {
+        let d = dataRaw[symbol].map((obs) => {
+          return [Number(new Date(obs.date)), obs.close];
+        })
+        return {data: d, name: symbol};
+      })
       response.json({status: 'success', message: null, data});
     }
   });
