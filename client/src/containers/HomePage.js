@@ -4,6 +4,8 @@ const socket = io("http://localhost:5000");
 
 import AddStock from '../components/AddStock';
 import StockChart from '../components/StockChart';
+import StockCard from '../components/StockCard';
+import '../styles/stocks.scss';
 
 export default class HomePage extends React.Component {
   constructor(props) {
@@ -28,7 +30,14 @@ export default class HomePage extends React.Component {
       <div>
         <AddStock socket={socket}/>
         <StockChart socket={socket}/>
-        <h1>{this.state.stocks}</h1>
+        <div className="stock-item-container">
+          {this.state.stocks.map((s) => {
+            return (
+              <StockCard symbol={s}/>
+            )
+          })}
+        </div>
+        
       </div>
     );
   }
