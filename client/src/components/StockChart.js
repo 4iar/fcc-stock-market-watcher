@@ -1,10 +1,7 @@
 import React from 'react';
-import axios from 'axios';
 import ReactHighstock from 'react-highcharts/dist/ReactHighstock';
 import theme from '../styles/chartTheme';
 
-
-import { API_STOCKS_URL } from '../constants/endpoints';
 
 export default class StockChart extends React.Component {
   constructor(props) {
@@ -19,19 +16,11 @@ export default class StockChart extends React.Component {
   }
 
   componentDidMount() {
-    this.fetchData();
-    this.socket.on('new stocks', () => {
-      this.fetchData();
-    });
-  }
-
-  fetchData() {
-    axios.get(API_STOCKS_URL)
-      .then((d) => {
-        this.setState({
-          data: d.data.data
-        })
+    this.socket.on('new stocks data', (data) => {
+      this.setState({
+        data: data.data
       })
+    });
   }
 
   render() {

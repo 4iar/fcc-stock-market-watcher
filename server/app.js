@@ -24,26 +24,29 @@ app.use(function(req, res, next) {
 });
 
 let stocks = ['googl'];
+let stocksData;
+refreshStocksData();
 io.on('connection', function (socket) {
   socket.emit('new stocks', stocks);
+  socket.emit('new stocks data', {data: stocksData});
   
   socket.on('add stock', function (data) {
     if (!_.includes(stocks, data.stock)) {
+      refreshStocksData();
       stocks.push(data.stock);
       io.emit('new stocks', stocks);
     }
   });
 });
 
-app.get('/api/stocks', (request, response) => {
-  console.log(stocks)
+function refreshStocksData() {
   yahooFinance.historical({
     symbols: stocks,
     to: moment(new Date()).format('YYYY-MM-DD'),
     from: '2000-01-01',
   }, (error, dataRaw) => {
     if (error) {
-      response.json({status: 'error', message: 'problem contacting the yahoo finance api'});
+      console.log(error);
     } else if (dataRaw) {
       const data =_.keys(dataRaw).map((symbol) => {
         let d = dataRaw[symbol].map((obs) => {
@@ -51,11 +54,11 @@ app.get('/api/stocks', (request, response) => {
         })
         return {data: d, name: symbol};
       })
-      response.json({status: 'success', message: null, data});
+      stocksData = data;
+      io.emit('new stocks data', {data: stocksData});
     }
-  });
-});
-
+  });  
+}
 
 app.get('*', function (req, res) {
   res.sendFile(__dirname + '/index.html');
