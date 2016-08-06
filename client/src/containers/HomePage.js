@@ -7,6 +7,7 @@ import StockChart from '../components/StockChart';
 import StockCard from '../components/StockCard';
 import '../styles/stocks.scss';
 
+
 export default class HomePage extends React.Component {
   constructor(props) {
     super(props);
@@ -37,7 +38,6 @@ export default class HomePage extends React.Component {
             )
           })}
         </div>
-        
       </div>
     );
   }
