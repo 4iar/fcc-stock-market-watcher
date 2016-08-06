@@ -1,6 +1,6 @@
 /*global io*/
 import React from 'react';
-const socket = io("http://localhost:5000");
+const socket = io('https://stockswatch-4iar.herokuapp.com/');
 
 import AddStock from '../components/AddStock';
 import StockChart from '../components/StockChart';
