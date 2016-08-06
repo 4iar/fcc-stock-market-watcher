@@ -6,6 +6,7 @@ import AddStock from '../components/AddStock';
 import StockChart from '../components/StockChart';
 import StockCard from '../components/StockCard';
 import '../styles/stocks.scss';
+import '../styles/homepage.scss'
 
 
 export default class HomePage extends React.Component {
@@ -28,7 +29,7 @@ export default class HomePage extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="page-container">
         <AddStock socket={socket}/>
         <StockChart socket={socket}/>
         <div className="stock-item-container">
