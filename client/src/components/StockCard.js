@@ -31,7 +31,7 @@ export default class StockCard extends React.Component {
       <Card className="stock-item">
         <CardHeader className="header" title={this.props.symbol}/>
         <CardActions className="buttons-container">
-          <FlatButton primary={true} label="Info" />
+          <FlatButton target="_blank" href={"https://uk.finance.yahoo.com/q?s=" + this.props.symbol} primary={true} label="Info" />
           <FlatButton disabled={this.state.deleteDisabled} onClick={this.handleDelete.bind(this)} secondary={true} label="Delete" />
         </CardActions>
       </Card>
