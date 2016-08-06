@@ -12,9 +12,9 @@ const MongoClient = mongodb.MongoClient;
 const mongolabUri = process.env.MONGODB_URI;
 let db;
 
+let io;
+
 const app = express();
-const server = app.listen(port);
-const io = require('socket.io')(server);
 
 app.use(express.static(__dirname + '/public'));
 app.use(function(req, res, next) {
@@ -23,48 +23,50 @@ app.use(function(req, res, next) {
     next();
 });
 
-let stocks = ['googl'];
-let stocksData;
-refreshStocksData();
-io.on('connection', function (socket) {
-  socket.emit('new stocks', stocks);
-  socket.emit('new stocks data', {data: stocksData});
-  
-  socket.on('add stock', function (data) {
-    if (!_.includes(stocks, data.stock)) {
-      refreshStocksData();
-      stocks.push(data.stock);
-      io.emit('new stocks', stocks);
-    }
-  });
-});
+MongoClient.connect(mongolabUri, (err, database) => {
+  if (err) return console.log(err)
+  db = database
+  const server = app.listen(port);
+  io = require('socket.io')(server);
 
-function refreshStocksData() {
+  io.on('connection', function (socket) {
+    db.collection('stocks').find(null, {_id: 0}).toArray((error, result) => {
+      socket.emit('new stocks', result.map((s) => {return s.name}));
+      socket.emit('new stocks data', {data: result});
+    })
+    socket.on('add stock', function (data) {
+      db.collection('stocks').find(null, {_id: 0, data: 0}).toArray((error, result) => {
+        if (!_.includes(result, data.stock)) {
+          addNewStock(data.stock);
+        }
+      })
+    });
+  });
+})
+
+function addNewStock(newStock) {
   yahooFinance.historical({
-    symbols: stocks,
+    symbol: newStock,
     to: moment(new Date()).format('YYYY-MM-DD'),
     from: '2000-01-01',
   }, (error, dataRaw) => {
     if (error) {
       console.log(error);
     } else if (dataRaw) {
-      const data =_.keys(dataRaw).map((symbol) => {
-        let d = dataRaw[symbol].map((obs) => {
-          return [Number(new Date(obs.date)), obs.close];
-        })
-        return {data: d, name: symbol};
+      const data = dataRaw.map((obs) => {
+        return [Number(new Date(obs.date)), obs.close];
       })
-      stocksData = data;
-      io.emit('new stocks data', {data: stocksData});
+      
+      db.collection('stocks').save({data, name: newStock}, (error, result) => {
+        db.collection('stocks').find(null, {_id: 0}).toArray((error, result) => {
+          io.emit('new stocks', result.map((s) => {return s.name}));
+          io.emit('new stocks data', {data: result});
+        })
+      })
     }
-  });  
+  });
 }
 
 app.get('*', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
-
-MongoClient.connect(mongolabUri, (err, database) => {
-  if (err) return console.log(err)
-  db = database
-})
