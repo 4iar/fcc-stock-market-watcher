@@ -8,6 +8,18 @@ export default class AddStock extends React.Component {
     super(props);
     this.socket = this.props.socket;
     this.stockToAdd = '';
+    
+    this.state = {
+      error: ''
+    };
+  }
+
+  componentDidMount() {
+    this.socket.on('add stock error', (error) => {
+      this.setState({
+        error
+      });
+    })
   }
 
   handleSubmit() {
@@ -25,6 +37,7 @@ export default class AddStock extends React.Component {
       <div>
         <TextField onChange={this.handleChange.bind(this)} floatingLabelText="Enter a stock symbol" />
         <FlatButton onClick={this.handleSubmit.bind(this)} label="Add" primary={true} />
+        {!!this.state.error && this.state.error}
       </div>
     );
   }

@@ -36,15 +36,22 @@ MongoClient.connect(mongolabUri, (err, database) => {
     })
     socket.on('add stock', function (data) {
       db.collection('stocks').find(null, {_id: 0, data: 0}).toArray((error, result) => {
-        if (!_.includes(result, data.stock)) {
-          addNewStock(data.stock);
+        if (error) {
+          socket.emit('add stock error', 'error contacting the database');
+          return;
+        } else if (result) {
+          if (!_.includes(result.map(s => {return s.name}), data.stock)) {
+            addNewStock(data.stock, socket);
+          } else {
+            socket.emit('add stock error', 'stock already exists');
+          }
         }
       })
     });
   });
 })
 
-function addNewStock(newStock) {
+function addNewStock(newStock, socket) {
   yahooFinance.historical({
     symbol: newStock,
     to: moment(new Date()).format('YYYY-MM-DD'),
@@ -53,15 +60,25 @@ function addNewStock(newStock) {
     if (error) {
       console.log(error);
     } else if (dataRaw) {
+      if (dataRaw.length === 0) {
+        socket.emit('add stock error', 'invalid stock');
+        return;
+      }
       const data = dataRaw.map((obs) => {
         return [Number(new Date(obs.date)), obs.close];
       })
-      
+
       db.collection('stocks').save({data, name: newStock}, (error, result) => {
-        db.collection('stocks').find(null, {_id: 0}).toArray((error, result) => {
-          io.emit('new stocks', result.map((s) => {return s.name}));
-          io.emit('new stocks data', {data: result});
-        })
+        if (error) {
+          socket.emit('add stock error', 'error contacting the database');
+        } else if (result) {
+          db.collection('stocks').find(null, {_id: 0}).toArray((error, result) => {
+            if (result) {
+              io.emit('new stocks', result.map((s) => {return s.name}));
+              io.emit('new stocks data', {data: result});
+            }
+          })
+        }
       })
     }
   });
