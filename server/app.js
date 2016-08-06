@@ -44,6 +44,7 @@ MongoClient.connect(mongolabUri, (err, database) => {
       
       if (data.stock.length === 0) {
         socket.emit('add stock error', {error: 'symbol cannot be empty', stock: data.stock});
+        return;
       }
 
       db.collection('stocks').find(null, {_id: 0, data: 0}).toArray((error, result) => {
