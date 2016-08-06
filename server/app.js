@@ -34,17 +34,41 @@ MongoClient.connect(mongolabUri, (err, database) => {
       socket.emit('new stocks', result.map((s) => {return s.name}));
       socket.emit('new stocks data', {data: result});
     })
+    
+    socket.on('delete stock', (data) => {
+      // TODO: factor these validations out
+     if (!data || typeof data.stock !== 'string') {
+        socket.emit('add stock error', {error: 'invalid data, wtf did you do?', stock: null});
+        return
+      } else {
+        data.stock = data.stock.toUpperCase();
+      }
+     if (data.stock.length === 0) {
+        socket.emit('add stock error', {error: 'symbol cannot be empty', stock: data.stock});
+        return;
+      }
+
+      db.collection('stocks').remove({name: data.stock}, (error, result) => {
+        if (!result || error) {
+          console.log("error deleting stock");
+          console.log(error)
+        }
+      })
+
+      db.collection('stocks').find(null, {_id: 0}).toArray((error, result) => {
+        if (result) {
+          io.emit('new stocks', result.map((s) => {return s.name}));
+          io.emit('new stocks data', {data: result});
+        }
+      })
+    }) 
+    
     socket.on('add stock', function (data) {
       if (!data || typeof data.stock !== 'string') {
         socket.emit('add stock error', {error: 'invalid data, wtf did you do?', stock: null});
         return
       } else {
         data.stock = data.stock.toUpperCase();
-      }
-      
-      if (data.stock.length === 0) {
-        socket.emit('add stock error', {error: 'symbol cannot be empty', stock: data.stock});
-        return;
       }
 
       db.collection('stocks').find(null, {_id: 0, data: 0}).toArray((error, result) => {

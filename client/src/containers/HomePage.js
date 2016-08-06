@@ -34,7 +34,7 @@ export default class HomePage extends React.Component {
         <div className="stock-item-container">
           {this.state.stocks.map((s) => {
             return (
-              <StockCard symbol={s}/>
+              <StockCard key={s} socket={socket} symbol={s}/>
             )
           })}
         </div>
