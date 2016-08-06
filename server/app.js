@@ -35,9 +35,20 @@ MongoClient.connect(mongolabUri, (err, database) => {
       socket.emit('new stocks data', {data: result});
     })
     socket.on('add stock', function (data) {
+      if (!data || typeof data.stock !== 'string') {
+        socket.emit('add stock error', {error: 'invalid data, wtf did you do?', stock: null});
+        return
+      } else {
+        data.stock = data.stock.toUpperCase();
+      }
+      
+      if (data.stock.length === 0) {
+        socket.emit('add stock error', {error: 'symbol cannot be empty', stock: data.stock});
+      }
+
       db.collection('stocks').find(null, {_id: 0, data: 0}).toArray((error, result) => {
         if (error) {
-          socket.emit('add stock error', 'error contacting the database');
+          socket.emit('add stock error', {error: 'error contacting the database', stock: data.stock});
           return;
         } else if (result) {
           if (!_.includes(result.map(s => {return s.name}), data.stock)) {
@@ -61,7 +72,7 @@ function addNewStock(newStock, socket) {
       console.log(error);
     } else if (dataRaw) {
       if (dataRaw.length === 0) {
-        socket.emit('add stock error', 'invalid stock');
+        socket.emit('add stock error', {error: 'invalid stock', stock: newStock});
         return;
       }
       const data = dataRaw.map((obs) => {
@@ -70,10 +81,11 @@ function addNewStock(newStock, socket) {
 
       db.collection('stocks').save({data, name: newStock}, (error, result) => {
         if (error) {
-          socket.emit('add stock error', 'error contacting the database');
+          socket.emit('add stock error', {error: 'error contacting the database', stock: newStock});
         } else if (result) {
           db.collection('stocks').find(null, {_id: 0}).toArray((error, result) => {
             if (result) {
+              socket.emit('add stock success', newStock);
               io.emit('new stocks', result.map((s) => {return s.name}));
               io.emit('new stocks data', {data: result});
             }
