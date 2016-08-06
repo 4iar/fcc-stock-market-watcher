@@ -6,7 +6,7 @@ import AddStock from '../components/AddStock';
 import StockChart from '../components/StockChart';
 import StockCard from '../components/StockCard';
 import '../styles/stocks.scss';
-import '../styles/homepage.scss'
+import '../styles/homepage.scss';
 
 
 export default class HomePage extends React.Component {
@@ -15,7 +15,7 @@ export default class HomePage extends React.Component {
 
     this.state = {
       stocks: []
-    }
+    };
   }
 
   componentDidMount() {
@@ -23,7 +23,7 @@ export default class HomePage extends React.Component {
       this.setState({
         stocks
       });
-    })
+    });
   }
 
 
@@ -36,7 +36,7 @@ export default class HomePage extends React.Component {
           {this.state.stocks.map((s) => {
             return (
               <StockCard key={s} socket={socket} symbol={s}/>
-            )
+            );
           })}
         </div>
       </div>

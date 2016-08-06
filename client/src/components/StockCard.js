@@ -1,5 +1,5 @@
 import React from 'react';
-import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
+import {Card, CardActions, CardHeader} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
 
 import '../styles/stocks.scss';
@@ -17,7 +17,6 @@ export default class StockCard extends React.Component {
   }
   
   handleDelete() {
-    console.log("deleting " + this.props.symbol);
     this.socket.emit('delete stock', {stock: this.props.symbol});
     
     this.setState({

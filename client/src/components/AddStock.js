@@ -5,7 +5,7 @@ import Dialog from 'material-ui/Dialog';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 
-import '../styles/fab.scss'
+import '../styles/fab.scss';
 
 
 export default class AddStock extends React.Component {
@@ -23,34 +23,29 @@ export default class AddStock extends React.Component {
 
   componentDidMount() {
     this.socket.on('add stock error', (error) => {
-      this.errorStockSymbol = error.stock
+      this.errorStockSymbol = error.stock;
       this.setState({
         error: error.error,
       });
-    })
+    });
     
     this.socket.on('add stock success', () => {
       this.setState({
         error: '',
         open: false
       });
-    })
+    });
   }
 
   handleSubmit() {
-    this.socket.emit('add stock', {stock: this.stockToAdd}, (data) => {
-      console.log(data);
-    })
+    this.socket.emit('add stock', {stock: this.stockToAdd});
   }
 
   handleChange(e) {
     this.stockToAdd = e.target.value;
     
     // remove the error message when the stock is changed
-    console.log(this.stockToAdd);
-    console.log(this.errorStockSymbol);
     if (this.stockToAdd !== this.errorStockSymbol) {
-      console.log("changed from err");
       this.setState({
         error: ''
       });

@@ -19,12 +19,12 @@ export default class StockChart extends React.Component {
     this.socket.on('new stocks data', (data) => {
       this.setState({
         data: data.data
-      })
+      });
     });
   }
 
   render() {
-    var data = this.state.data;
+    const data = this.state.data;
 
     if (!data) {
       return (
@@ -32,9 +32,7 @@ export default class StockChart extends React.Component {
       );
     }
 
-    console.log(data);
-
-    var config = {
+    const config = {
       theme: theme,
       rangeSelector: {
         selected: 1
