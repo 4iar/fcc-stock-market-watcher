@@ -79,7 +79,7 @@ MongoClient.connect(mongolabUri, (err, database) => {
           if (!_.includes(result.map(s => {return s.name}), data.stock)) {
             addNewStock(data.stock, socket);
           } else {
-            socket.emit('add stock error', 'stock already exists');
+            socket.emit('add stock error', {error: 'stock already exists', stock: data.stock});
           }
         }
       })
