@@ -17,7 +17,8 @@ export default class AddStock extends React.Component {
 
     this.state = {
       error: '',
-      open: false
+      open: false,
+      waitingForResponse: false
     };
   }
 
@@ -26,19 +27,24 @@ export default class AddStock extends React.Component {
       this.errorStockSymbol = error.stock;
       this.setState({
         error: error.error,
+        waitingForResponse: false
       });
     });
     
     this.socket.on('add stock success', () => {
       this.setState({
         error: '',
-        open: false
+        open: false,
+        waitingForResponse: false
       });
     });
   }
 
   handleSubmit() {
     this.socket.emit('add stock', {stock: this.stockToAdd});
+    this.setState({
+      waitingForResponse: true
+    });
   }
 
   handleChange(e) {
@@ -74,8 +80,14 @@ export default class AddStock extends React.Component {
             onChange={this.handleChange.bind(this)}
             floatingLabelText="Enter a stock symbol"
             errorText={this.state.error}
+            disabled={this.state.waitingForResponse}
           />
-          <FlatButton onClick={this.handleSubmit.bind(this)} label="Add" primary={true} />
+          <FlatButton 
+            onClick={this.handleSubmit.bind(this)} 
+            label="Add" 
+            primary={true} 
+            disabled={this.state.waitingForResponse}
+          />
 
         </Dialog>
 
