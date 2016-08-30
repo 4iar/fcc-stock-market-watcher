@@ -91,7 +91,7 @@ function addNewStock(newStock, socket) {
   yahooFinance.historical({
     symbol: newStock,
     to: moment(new Date()).format('YYYY-MM-DD'),
-    from: '2000-01-01',
+    from: '2010-01-01',
   }, (error, dataRaw) => {
     if (error) {
       console.log(error);
