@@ -91,7 +91,7 @@ export default class AddStock extends React.Component {
 
         </Dialog>
 
-        <FloatingActionButton className="fab" mini={true} onClick={this.handleOpen}>
+        <FloatingActionButton secondary={true} className="fab" mini={true} onClick={this.handleOpen}>
           <ContentAdd />
         </FloatingActionButton>
       </div>
